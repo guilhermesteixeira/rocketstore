@@ -20,6 +20,10 @@
         <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="9.0.0" />        
         <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.10" />
     </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Customer\Commands\DeleteCustomer" />
+    </ItemGroup>
     
 
 </Project>

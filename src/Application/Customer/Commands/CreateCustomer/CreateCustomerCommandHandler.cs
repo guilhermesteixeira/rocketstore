@@ -5,15 +5,12 @@ namespace RocketStore.Application.Customer.Commands.CreateCustomer
     using System.Threading;
     using System.Threading.Tasks;
     using MediatR;
-    using Microsoft.EntityFrameworkCore.Storage;
     using Microsoft.Extensions.Logging;
     using RocketStore.Application.Common.Exceptions;
     using RocketStore.Application.Common.Interfaces;
-    using RocketStore.Application.Managers;
-    using RocketStore.Application.Models;
     using RocketStore.Domain.Entities;
 
-    public class CreateCustomerCommandHandler : IRequestHandler<CreateCustomerCommand, string>
+    public class CreateCustomerCommandHandler : IRequestHandler<CreateCustomerCommand, Guid>
     {
         private readonly IApplicationDbContext applicationDbContext;
         private readonly ILogger<CreateCustomerCommandHandler> logger;
@@ -24,7 +21,7 @@ namespace RocketStore.Application.Customer.Commands.CreateCustomer
             this.logger = logger;
         }
         
-        public async Task<string> Handle(CreateCustomerCommand request, CancellationToken cancellationToken)
+        public async Task<Guid> Handle(CreateCustomerCommand request, CancellationToken cancellationToken)
         {
             if (request == null)
             {

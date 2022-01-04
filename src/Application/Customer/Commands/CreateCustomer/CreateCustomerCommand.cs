@@ -1,8 +1,9 @@
 namespace RocketStore.Application.Customer.Commands.CreateCustomer
 {
+    using System;
     using MediatR;
     
-    public class CreateCustomerCommand : IRequest<string>
+    public class CreateCustomerCommand : IRequest<Guid>
     {
         /// <summary>
         /// Gets or sets the customer name.

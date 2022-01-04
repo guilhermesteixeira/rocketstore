@@ -1,11 +1,11 @@
-﻿namespace RocketStore.Domain.Entities
+namespace RocketStore.Application.Customer.Queries.GetCustomerDetail
 {
     using System;
 
     /// <summary>
     /// Defines a customer.
     /// </summary>
-    public  class Customer
+    public  class CustomerDetailDto
     {
         /// <summary>
         /// Gets or sets the customer identifier.

@@ -3,6 +3,8 @@
     using System;
     using System.Diagnostics.CodeAnalysis;
     using AutoMapper;
+    using RocketStore.Application.Customer.Queries.GetCustomerDetail;
+    using RocketStore.Application.Customer.Queries.GetCustomerList;
     using Domain = Domain.Entities;
 
     /// <summary>
@@ -25,8 +27,11 @@
                 .AfterMap(
                     (source, target) =>
                     {
-                        target.Id = Guid.NewGuid().ToString();
+                        target.Id = Guid.NewGuid();
                     });
+
+            this.CreateMap<Domain.Customer, CustomersDto>();
+            this.CreateMap<Domain.Customer, CustomerDetailDto>();
         }
 
         #endregion

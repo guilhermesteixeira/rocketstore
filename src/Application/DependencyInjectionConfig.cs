@@ -14,7 +14,6 @@ namespace RocketStore.Application
         public static IServiceCollection AddApplication(this IServiceCollection services)
         {
             services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
-            services.AddScoped<ICustomersManager, CustomersManager>(); 
             services.AddSingleton<Profile, MappingProfile>();
             
             services.AddMediatR(Assembly.GetExecutingAssembly());

@@ -1,11 +1,15 @@
 ﻿namespace RocketStoreApi.Controllers
 {
     using System;
+    using System.Collections;
+    using System.Collections.Generic;
     using System.Net;
     using System.Threading.Tasks;
     using MediatR;
     using Microsoft.AspNetCore.Mvc;
     using RocketStore.Application.Customer.Commands.CreateCustomer;
+    using RocketStore.Application.Customer.Queries.GetCustomerDetail;
+    using RocketStore.Application.Customer.Queries.GetCustomerList;
 
     /// <summary>
     /// Defines the customers controller.
@@ -43,31 +47,45 @@
         {
             var result = await this.mediator.Send(customer).ConfigureAwait(false);
 
-            /*
-            if (result.FailedWith(ErrorCodes.CustomerAlreadyExists))
-            {
-                return this.Conflict(
-                    new ProblemDetails()
-                    {
-                        Status = (int)HttpStatusCode.Conflict,
-                        Title = result.ErrorCode,
-                        Detail = result.ErrorDescription,
-                    });
-            }
-            else if (result.Failed)
-            {
-                return this.BadRequest(
-                    new ProblemDetails()
-                    {
-                        Status = (int)HttpStatusCode.BadRequest,
-                        Title = result.ErrorCode,
-                        Detail = result.ErrorDescription,
-                    });
-            }*/
-
             return this.Created(
                 this.GetUri("customers", result),
-                Guid.Parse(result));
+                result);
+        }
+
+        /// <summary>
+        /// Get all customers by filter.
+        /// </summary>
+        /// <param name="filter">filter.</param>
+        /// <returns>List of customers.</returns>
+        [HttpGet("api/customers")]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.Conflict)]
+        [ProducesResponseType(typeof(IList<CustomersDto>), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetAllCustomerAsync([FromQuery]string filter)
+        {
+            return this.Ok(await this.mediator.Send(new GetCustomersListQuery
+                {
+                    filter = filter,
+                })
+                .ConfigureAwait(false));
+        }
+
+        /// <summary>
+        /// Get customer by Id.
+        /// </summary>
+        /// <param name="id">Id.</param>
+        /// <returns>Customer.</returns>
+        [HttpGet("api/customers/{id}")]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.Conflict)]
+        [ProducesResponseType(typeof(CustomerDetailDto), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetCustomerByIdAsync([FromRoute]Guid id)
+        {
+            return this.Ok(await this.mediator.Send(new GetCustomerDetailQuery
+                {
+                    Id = id,
+                })
+                .ConfigureAwait(false));
         }
 
         private Uri GetUri(params object[] parameters)

@@ -1,16 +1,11 @@
-﻿namespace RocketStore.Domain.Entities
+namespace RocketStore.Application.Customer.Queries.GetCustomerList
 {
-    using System;
-
-    /// <summary>
-    /// Defines a customer.
-    /// </summary>
-    public  class Customer
+    public class CustomersDto
     {
         /// <summary>
         /// Gets or sets the customer identifier.
         /// </summary>
-        public Guid Id
+        public string Id
         {
             get;
             set;
@@ -29,15 +24,6 @@
         /// Gets or sets the customer email address.
         /// </summary>
         public string Email
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Gets or sets the customer VAT number.
-        /// </summary>
-        public string VatNumber
         {
             get;
             set;
