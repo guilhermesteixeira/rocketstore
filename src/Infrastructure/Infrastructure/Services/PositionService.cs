@@ -7,7 +7,6 @@ namespace RocketStore.Infrastructure.Services
     using System.Text.Json;
     using System.Threading.Tasks;
     using System.Web;
-    using AutoMapper;
     using RocketStore.Application.Common.Interfaces;
     using RocketStore.Domain.Entities;
 
@@ -15,19 +14,19 @@ namespace RocketStore.Infrastructure.Services
     {
         public async Task<AddressData> GetAddress(string address)
         {
-            var url = new UriBuilder("http://api.positionstack.com/v1/forward");
+            var uriBuilder = new UriBuilder("http://api.positionstack.com/v1/forward");
             var client = new HttpClient();
             var jsonOptions = new JsonSerializerOptions()
             {
                 PropertyNameCaseInsensitive = true
             };
 
-            var queryString = HttpUtility.ParseQueryString(url.Query);
+            var queryString = HttpUtility.ParseQueryString(uriBuilder.Query);
             queryString["access_key"] = "0d425df114162e6dd8264cd302f4fe1f";
             queryString["query"] = address;
-            url.Query = queryString.ToString();
+            uriBuilder.Query = queryString.ToString();
 
-            var response = await client.GetAsync(url.Uri);
+            var response = await client.GetAsync(uriBuilder.Uri);
 
             if (response.StatusCode == HttpStatusCode.OK)
             {

@@ -48,7 +48,7 @@
             var result = await this.mediator.Send(customer).ConfigureAwait(false);
 
             return this.Created(
-                this.GetUri("customers", result),
+                this.GetUri("api/customers", result),
                 result);
         }
 

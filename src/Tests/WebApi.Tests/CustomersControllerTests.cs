@@ -1,13 +1,17 @@
 ﻿namespace RocketStoreApi.Tests
 {
     using System;
+    using System.Collections;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using System.Net;
     using System.Net.Http;
     using System.Threading.Tasks;
     using FluentAssertions;
     using Microsoft.AspNetCore.Mvc;
     using RocketStore.Application.Customer.Commands.CreateCustomer;
+    using RocketStore.Application.Customer.Queries.GetCustomerDetail;
+    using RocketStore.Application.Customer.Queries.GetCustomerList;
     using RocketStore.Application.Managers;
     using RocketStoreApi.Controllers;
     using Xunit;
@@ -15,17 +19,12 @@
     /// <summary>
     /// Provides integration tests for the <see cref="CustomersController"/> type.
     /// </summary>
+    [SuppressMessage("Resharper", "CA1707", Justification = "Test methods can have underline in name of the methods.")]
     public class CustomersControllerTests : TestsBase, IClassFixture<CustomersFixture>
     {
         // Ignore Spelling: api
 
-        #region Fields
-
         private readonly CustomersFixture fixture;
-
-        #endregion
-
-        #region Constructors
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CustomersControllerTests"/> class.
@@ -36,19 +35,15 @@
             this.fixture = fixture;
         }
 
-        #endregion
-
-        #region Test Methods
-
         /// <summary>
-        /// Tests the <see cref="CustomersController.CreateCustomerAsync(Customer2)"/> method
+        /// Tests the <see cref="CustomersController.CreateCustomerAsync(CreateCustomerCommand)"/> method
         /// to ensure that it requires name and email.
         /// </summary>
         /// <returns>
         /// The <see cref="Task"/> that represents the asynchronous operation.
         /// </returns>
         [Fact]
-        public async Task CreateRequiresNameAndEmailAsync()
+        public async Task CreateCustomerAsync_CreateWithoutRequiredFields_ReturnsBadRequestAsync()
         {
             // Arrange
 
@@ -56,12 +51,12 @@
             {
                 { "Name", new string[] { "The Name field is required." } },
                 { "EmailAddress", new string[] { "The EmailAddress field is required." } },
+                { "Address", new string[] { "The Address field is required." } },
+                { "VatNumber", new string[] { "The VatNumber field is required." } },
             };
 
             CreateCustomerCommand customer2 = new CreateCustomerCommand
             {
-                VatNumber = "111111111",
-                Address = "Address",
             };
 
             // Act
@@ -78,14 +73,14 @@
         }
 
         /// <summary>
-        /// Tests the <see cref="CustomersController.CreateCustomerAsync(Customer2)"/> method
+        /// Tests the <see cref="CustomersController.CreateCustomerAsync(CreateCustomerCommand)"/> method
         /// to ensure that it requires a valid email address.
         /// </summary>
         /// <returns>
         /// The <see cref="Task"/> that represents the asynchronous operation.
         /// </returns>
         [Fact]
-        public async Task CreateRequiresValidEmailAsync()
+        public async Task CreateCustomerAsync_CreateRequiresValidEmail_ReturnBadRequestAsync()
         {
             // Arrange
 
@@ -116,46 +111,14 @@
         }
 
         /// <summary>
-        /// Tests the <see cref="CustomersController.CreateCustomerAsync(Customer2)"/> method
-        /// to ensure that it requires a valid VAT number.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="Task"/> that represents the asynchronous operation.
-        /// </returns>
-        [Fact]
-        public async Task CreateRequiresValidVatNumberAsync()
-        {
-            // Arrange
-
-            var customer2 = new CreateCustomerCommand()
-            {
-                Name = "A customer",
-                EmailAddress = $"{GetRandomString()}@server.pt",
-                VatNumber = "123456789",
-                Address = "Address",
-            };
-
-            // Act
-
-            HttpResponseMessage httpResponse = await this.fixture.PostAsync("api/customers", customer2).ConfigureAwait(false);
-
-            // Assert
-
-            httpResponse.StatusCode.Should().Be(HttpStatusCode.Created);
-
-            var error = await this.GetResponseContentAsync<Guid>(httpResponse).ConfigureAwait(false);
-            error.Should().NotBeEmpty();
-        }
-
-        /// <summary>
-        /// Tests the <see cref="CustomersController.CreateCustomerAsync(Customer2)"/> method
+        /// Tests the <see cref="CustomersController.CreateCustomerAsync(CreateCustomerCommand)"/> method
         /// to ensure that it requires a unique email address.
         /// </summary>
         /// <returns>
         /// The <see cref="Task"/> that represents the asynchronous operation.
         /// </returns>
         [Fact]
-        public async Task CreateRequiresUniqueEmailAsync()
+        public async Task CreateCustomerAsync_CreateRequiresUniqueEmail_ReturnCreatedAsync()
         {
             // Arrange
             var customerEmail = $"{GetRandomString()}@server.pt";
@@ -194,14 +157,14 @@
         }
 
         /// <summary>
-        /// Tests the <see cref="CustomersController.CreateCustomerAsync(Customer2)"/> method
-        /// to ensure that it requires a valid VAT number.
+        /// Tests the <see cref="CustomersController.CreateCustomerAsync(CreateCustomerCommand)"/> method
+        /// to ensure that it requires a valid customer.
         /// </summary>
         /// <returns>
         /// The <see cref="Task"/> that represents the asynchronous operation.
         /// </returns>
         [Fact]
-        public async Task CreateSucceedsAsync()
+        public async Task CreateCustomerAsync_ValidCustomer_ReturnCreatedAsync()
         {
             // Arrange
 
@@ -227,6 +190,68 @@
             httpResponse.Headers.Location.Should().NotBeNull();
         }
 
-        #endregion
+        /// <summary>
+        /// Test.
+        /// </summary>
+        /// <returns>Task.</returns>
+        [Fact]
+        public async Task GetAllCustomerAsync_FilterByName_ReturnOneRecordAsync()
+        {
+            // Arrange
+
+            var customer = new CreateCustomerCommand()
+            {
+                Name = "Filter By Name",
+                EmailAddress = "filterbyname@server.pt",
+                VatNumber = "123456789",
+                Address = "Address"
+            };
+
+            HttpResponseMessage httpResponseInsert = await this.fixture.PostAsync("api/customers", customer).ConfigureAwait(false);
+
+            // Act
+
+            HttpResponseMessage httpResponse = await this.fixture.GetAsync("api/customers", new { filter = "Name" }).ConfigureAwait(false);
+
+            // Assert
+
+            httpResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+
+            var customers = await this.GetResponseContentAsync<IList<CustomersDto>>(httpResponse).ConfigureAwait(false);
+            customers.Should().NotBeNull();
+            customers.Should().ContainSingle();
+        }
+        
+        /// <summary>
+        /// Test.
+        /// </summary>
+        /// <returns>Task.</returns>
+        [Fact]
+        public async Task GetCustomerByIdAsync_InsertAndGet_ReturnOkAsync()
+        {
+            // Arrange
+
+            var customer = new CreateCustomerCommand()
+            {
+                Name = "My customer",
+                EmailAddress = "mycustomerbyid@server.pt",
+                VatNumber = "123456789",
+                Address = "Rua Castelo da Maia Ginasio Clube, 100",
+            };
+
+            HttpResponseMessage httpResponseInsert = await this.fixture.PostAsync("api/customers", customer).ConfigureAwait(false);
+
+            // Act
+
+            HttpResponseMessage httpResponse = await this.fixture.GetAsync(httpResponseInsert.Headers.Location).ConfigureAwait(false);
+
+            // Assert
+
+            httpResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+
+            var customers = await this.GetResponseContentAsync<CustomerDetailDto>(httpResponse).ConfigureAwait(false);
+            customers.Should().NotBeNull();
+            customers.Address.Should().NotBeNull();
+        }
     }
 }

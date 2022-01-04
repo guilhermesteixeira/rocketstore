@@ -11,6 +11,9 @@ using RocketStoreApi.Controllers;
 
 namespace RocketStoreApi.Tests
 {
+    using System.Linq;
+    using System.Web;
+
     /// <summary>
     /// Defines a test fixture used to test the <see cref="CustomersController"/>.
     /// </summary>
@@ -19,13 +22,7 @@ namespace RocketStoreApi.Tests
     {
         // Ignore Spelling: json
 
-        #region Fields
-
         private bool disposed;
-
-        #endregion
-
-        #region Private Properties
 
         private TestServer Server
         {
@@ -36,10 +33,6 @@ namespace RocketStoreApi.Tests
         {
             get;
         }
-
-        #endregion
-
-        #region Constructors
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CustomersFixture"/> class.
@@ -57,16 +50,12 @@ namespace RocketStoreApi.Tests
                 .UseEnvironment("Development")
                 .UseConfiguration(configuration)
                 .UseStartup<Startup>();
-            
+
             this.Server = new TestServer(webHostBuilder);
 
             this.Client = this.Server.CreateClient();
         }
-
-        #endregion
-
-        #region Public Methods
-
+        
         /// <summary>
         /// Send a post request.
         /// </summary>
@@ -92,16 +81,39 @@ namespace RocketStoreApi.Tests
                 .ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Send a Get request.
+        /// </summary>
+        /// <param name="endpointPath">Endpoint path.</param>
+        /// <param name="model">model.</param>
+        /// <typeparam name="T">Type.</typeparam>
+        /// <returns>HttpResponseMessage.</returns>
+        public Task<HttpResponseMessage> GetAsync<T>(string endpointPath, T model)
+        {
+            var uriBuilder = new UriBuilder($"{this.Server.BaseAddress}{endpointPath}");
+            uriBuilder.Query = GetQueryString(model);
+
+            return this.Client.GetAsync(
+                uriBuilder.Uri);
+        }
+
+        /// <summary>
+        /// Send a Get request.
+        /// </summary>
+        /// <param name="endpoint">Endpoint path.</param>
+        /// <typeparam name="T">Type.</typeparam>
+        /// <returns>HttpResponseMessage.</returns>
+        public Task<HttpResponseMessage> GetAsync(Uri endpoint)
+        {
+            return this.Client.GetAsync(endpoint);
+        }
+
         /// <inheritdoc />
         public void Dispose()
         {
             this.Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
-
-        #endregion
-
-        #region Private Methods
 
         private void Dispose(bool disposing)
         {
@@ -124,6 +136,13 @@ namespace RocketStoreApi.Tests
             }
         }
 
-        #endregion
+        private static string GetQueryString(object obj)
+        {
+            var properties = from p in obj.GetType().GetProperties()
+                where p.GetValue(obj, null) != null
+                select p.Name + "=" + HttpUtility.UrlEncode(p.GetValue(obj, null).ToString());
+
+            return string.Join("&", properties.ToArray());
+        }
     }
 }
