@@ -4,6 +4,7 @@ namespace RocketStore.Infrastructure
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.DependencyInjection;
     using RocketStore.Application.Common.Interfaces;
+    using RocketStore.Infrastructure.Services;
     using RocketStore.Infrastructure.Storage;
 
     public static class DependencyInjectionConfig
@@ -15,6 +16,8 @@ namespace RocketStore.Infrastructure
 
             services.AddScoped<IApplicationDbContext>(provider =>
                 provider.GetService<ApplicationDbContext>() ?? throw new InvalidOperationException());
+
+            services.AddScoped<IPositionService, PositionService>();
             
             return services;
         }

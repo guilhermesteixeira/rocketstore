@@ -52,6 +52,7 @@
             modelBuilder.Entity<Customer>().Property(t => t.Email).HasMaxLength(200).IsRequired();
             modelBuilder.Entity<Customer>().Property(t => t.VatNumber).HasMaxLength(9);
             modelBuilder.Entity<Customer>().HasIndex(c => c.Email).IsUnique();
+            modelBuilder.Entity<Customer>().Property(c => c.Address).HasMaxLength(200).IsRequired();
             modelBuilder.Entity<Customer>().HasKey(customer => customer.Id);
         }
 

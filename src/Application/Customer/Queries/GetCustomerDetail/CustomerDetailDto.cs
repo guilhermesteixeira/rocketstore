@@ -42,5 +42,14 @@ namespace RocketStore.Application.Customer.Queries.GetCustomerDetail
             get;
             set;
         }
+
+        /// <summary>
+        /// Gets or sets the customer Address.
+        /// </summary>
+        public AddressDataDto Address
+        {
+            get;
+            set;
+        }
     }
 }

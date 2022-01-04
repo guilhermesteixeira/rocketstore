@@ -42,5 +42,14 @@
             get;
             set;
         }
+        
+        /// <summary>
+        /// Gets or sets the customer Address.
+        /// </summary>
+        public string Address
+        {
+            get;
+            set;
+        }
     }
 }

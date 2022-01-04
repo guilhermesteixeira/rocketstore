@@ -1,13 +1,13 @@
 ﻿namespace RocketStoreApi.Controllers
 {
     using System;
-    using System.Collections;
     using System.Collections.Generic;
     using System.Net;
     using System.Threading.Tasks;
     using MediatR;
     using Microsoft.AspNetCore.Mvc;
     using RocketStore.Application.Customer.Commands.CreateCustomer;
+    using RocketStore.Application.Customer.Commands.DeleteCustomer;
     using RocketStore.Application.Customer.Queries.GetCustomerDetail;
     using RocketStore.Application.Customer.Queries.GetCustomerList;
 
@@ -64,10 +64,9 @@
         public async Task<IActionResult> GetAllCustomerAsync([FromQuery]string filter)
         {
             return this.Ok(await this.mediator.Send(new GetCustomersListQuery
-                {
-                    filter = filter,
-                })
-                .ConfigureAwait(false));
+            {
+                filter = filter,
+            }));
         }
 
         /// <summary>
@@ -82,10 +81,28 @@
         public async Task<IActionResult> GetCustomerByIdAsync([FromRoute]Guid id)
         {
             return this.Ok(await this.mediator.Send(new GetCustomerDetailQuery
-                {
-                    Id = id,
-                })
-                .ConfigureAwait(false));
+            {
+                Id = id,
+            }));
+        }
+
+        /// <summary>
+        /// Delete customer by Id.
+        /// </summary>
+        /// <param name="id">Id.</param>
+        /// <returns>Customer.</returns>
+        [HttpDelete("api/customers/{id}")]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.Conflict)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        public async Task<IActionResult> DeleteCustomerByIdAsync([FromRoute]Guid id)
+        {
+            await this.mediator.Send(new DeleteCustomerCommand
+            {
+                Id = id,
+            });
+
+            return this.NoContent();
         }
 
         private Uri GetUri(params object[] parameters)

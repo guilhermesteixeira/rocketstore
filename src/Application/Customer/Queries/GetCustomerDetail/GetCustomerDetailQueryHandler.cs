@@ -15,27 +15,39 @@ namespace RocketStore.Application.Customer.Queries.GetCustomerDetail
     {
         private readonly IApplicationDbContext applicationDbContext;
         private readonly IMapper mapper;
+        private readonly IPositionService positionService;
 
-        public GetCustomerDetailQueryHandler(IApplicationDbContext applicationDbContext, IMapper mapper)
+        public GetCustomerDetailQueryHandler(IApplicationDbContext applicationDbContext,
+            IMapper mapper,
+            IPositionService positionService)
         {
             this.applicationDbContext = applicationDbContext;
             this.mapper = mapper;
+            this.positionService = positionService;
         }
-        
+
         public async Task<CustomerDetailDto> Handle(GetCustomerDetailQuery request, CancellationToken cancellationToken)
         {
             request = request ?? throw new ArgumentNullException(nameof(request));
             
             var customer = await applicationDbContext.Customers
-                .ProjectTo<CustomerDetailDto>(mapper.ConfigurationProvider)
                 .FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
 
             if (customer == null)
             {
                 throw new NotFoundException(nameof(Customer), request.Id);
             }
+            
+            var customerDto = mapper.Map<Customer, CustomerDetailDto>(customer);
 
-            return customer;
+            var addressData = await positionService.GetAddress(customer.Address);
+
+            if (addressData != null)
+            {
+                customerDto.Address = mapper.Map<AddressData, AddressDataDto>(addressData);
+            }
+
+            return customerDto;
         }
     }
 }

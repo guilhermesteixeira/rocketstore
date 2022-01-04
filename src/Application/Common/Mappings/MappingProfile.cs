@@ -1,6 +1,5 @@
 ﻿namespace RocketStore.Application.Common.Mappings
 {
-    using System;
     using System.Diagnostics.CodeAnalysis;
     using AutoMapper;
     using RocketStore.Application.Customer.Queries.GetCustomerDetail;
@@ -21,17 +20,13 @@
         /// </summary>
         public MappingProfile()
         {
-            this.CreateMap<Models.Customer2, Domain.Customer>()
-                .ForMember(customer => customer.Email,
-                    expression => expression.MapFrom(customer => customer.EmailAddress))
-                .AfterMap(
-                    (source, target) =>
-                    {
-                        target.Id = Guid.NewGuid();
-                    });
-
             this.CreateMap<Domain.Customer, CustomersDto>();
-            this.CreateMap<Domain.Customer, CustomerDetailDto>();
+            this.CreateMap<Domain.Customer, CustomerDetailDto>()
+                .ForMember(dto => dto.Address, expression => expression.Ignore());
+            this.CreateMap<Domain.AddressData, AddressDataDto>()
+                .ForMember(dto => dto.CountryCode, expression => expression.MapFrom(data => data.Country_Code))
+                .ForMember(dto => dto.PostalCode, expression => expression.MapFrom(data => data.Postal_Code))
+                .ForMember(dto => dto.RegionCode, expression => expression.MapFrom(data => data.Region_Code));
         }
 
         #endregion

@@ -19,5 +19,14 @@ namespace RocketStore.Application.Customer.Commands.CreateCustomer
         /// Gets or sets the customer VAT number.
         /// </summary>
         public string VatNumber { get; set; }
+        
+        /// <summary>
+        /// Gets or sets the customer Address.
+        /// </summary>
+        public string Address
+        {
+            get;
+            set;
+        }
     }
 }

@@ -32,7 +32,8 @@ namespace RocketStore.Application.Customer.Commands.CreateCustomer
             {
                 Name = request.Name,
                 Email = request.EmailAddress,
-                VatNumber = request.VatNumber
+                VatNumber = request.VatNumber,
+                Address = request.Address
             };
 
             if (this.applicationDbContext.Customers.Any(i => i.Email == entity.Email))

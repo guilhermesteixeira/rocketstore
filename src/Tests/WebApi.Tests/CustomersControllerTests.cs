@@ -7,8 +7,8 @@
     using System.Threading.Tasks;
     using FluentAssertions;
     using Microsoft.AspNetCore.Mvc;
+    using RocketStore.Application.Customer.Commands.CreateCustomer;
     using RocketStore.Application.Managers;
-    using RocketStore.Application.Models;
     using RocketStoreApi.Controllers;
     using Xunit;
 
@@ -58,9 +58,10 @@
                 { "EmailAddress", new string[] { "The EmailAddress field is required." } },
             };
 
-            Customer2 customer2 = new Customer2
+            CreateCustomerCommand customer2 = new CreateCustomerCommand
             {
                 VatNumber = "111111111",
+                Address = "Address",
             };
 
             // Act
@@ -93,11 +94,12 @@
                 { "EmailAddress", new string[] { "The Email field is not a valid e-mail address." } }
             };
 
-            Customer2 customer2 = new Customer2()
+            var customer2 = new CreateCustomerCommand()
             {
                 Name = "A customer",
                 EmailAddress = "An invalid email",
-                VatNumber = "123456789"
+                VatNumber = "123456789",
+                Address = "Address"
             };
 
             // Act
@@ -125,11 +127,12 @@
         {
             // Arrange
 
-            Customer2 customer2 = new Customer2()
+            var customer2 = new CreateCustomerCommand()
             {
                 Name = "A customer",
                 EmailAddress = $"{GetRandomString()}@server.pt",
                 VatNumber = "123456789",
+                Address = "Address",
             };
 
             // Act
@@ -157,18 +160,20 @@
             // Arrange
             var customerEmail = $"{GetRandomString()}@server.pt";
 
-            Customer2 customer1 = new Customer2()
+            var customer1 = new CreateCustomerCommand()
             {
                 Name = "A customer",
                 EmailAddress = customerEmail,
                 VatNumber = "123456789",
+                Address = "Address",
             };
 
-            Customer2 customer2 = new Customer2()
+            var customer2 = new CreateCustomerCommand()
             {
                 Name = "Another customer",
                 EmailAddress = customerEmail,
                 VatNumber = "123456789",
+                Address = "Address",
             };
 
             // Act
@@ -200,11 +205,12 @@
         {
             // Arrange
 
-            Customer2 customer2 = new Customer2()
+            var customer2 = new CreateCustomerCommand()
             {
                 Name = "My customer",
                 EmailAddress = "mycustomer@server.pt",
-                VatNumber = "123456789"
+                VatNumber = "123456789",
+                Address = "Address"
             };
 
             // Act

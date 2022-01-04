@@ -12,6 +12,7 @@ namespace RocketStore.Application.Customer.Commands.CreateCustomer
                 .EmailAddress()
                 .WithMessage("The Email field is not a valid e-mail address.");
             RuleFor(x => x.VatNumber).NotEmpty().Matches("^[0-9]{9}$");
+            RuleFor(x => x.Address).NotEmpty();
         }
     }
 }
